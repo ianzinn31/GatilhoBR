@@ -21,9 +21,11 @@ try {
 
 const CURRENT_VERSION = electronApp ? electronApp.getVersion() : '4.3.0';
 
-const DEFAULT_UPDATE_BASE_URL = process.env.GBR_UPDATE_BASE_URL || 'https://releases.gatilhobr.com';
+const GITHUB_OWNER = 'ianzinn31';
+const GITHUB_REPO = 'GatilhoBR';
+const DEFAULT_UPDATE_BASE_URL = process.env.GBR_UPDATE_BASE_URL || `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases`;
 const DEFAULT_UPDATE_CHECK_URL = process.env.GBR_UPDATE_URL ||
-  'https://raw.githubusercontent.com/gatilhobr/releases/main/version.json';
+  `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`;
 
 /**
  * Compara duas versões semânticas (ex: "4.3.1" > "4.3.0").
@@ -191,18 +193,21 @@ class GatilhoUpdater {
   constructor(options = {}) {
     this.currentVersion = options.currentVersion || CURRENT_VERSION;
     this.channel = options.channel || 'stable';
+    this.owner = options.owner || GITHUB_OWNER;
+    this.repo = options.repo || GITHUB_REPO;
     this.updateBaseUrl = (options.updateBaseUrl || DEFAULT_UPDATE_BASE_URL).replace(/\/+$/, '');
     this.updateUrl = options.updateUrl || DEFAULT_UPDATE_CHECK_URL;
     this.isChecking = false;
     this.rollbackAvailable = false;
 
     if (autoUpdater) {
-      autoUpdater.autoDownload = false;
+      autoUpdater.autoDownload = true;
       autoUpdater.autoInstallOnAppQuit = true;
       try {
         autoUpdater.setFeedURL({
-          provider: 'generic',
-          url: `${this.updateBaseUrl}/${this.channel}`
+          provider: 'github',
+          owner: this.owner,
+          repo: this.repo
         });
       } catch (_) {}
     }
@@ -211,14 +216,6 @@ class GatilhoUpdater {
   setChannel(channel) {
     if (channel) {
       this.channel = channel;
-      if (autoUpdater) {
-        try {
-          autoUpdater.setFeedURL({
-            provider: 'generic',
-            url: `${this.updateBaseUrl}/${this.channel}`
-          });
-        } catch (_) {}
-      }
     }
   }
 
@@ -227,17 +224,28 @@ class GatilhoUpdater {
   }
 
   evaluatePayload(payload) {
-    if (!payload || !payload.version) {
+    if (!payload) {
       return { hasUpdate: false, currentVersion: this.currentVersion };
     }
 
-    const hasUpdate = isVersionNewer(payload.version, this.currentVersion);
+    const remoteVersion = payload.tag_name || payload.version;
+    if (!remoteVersion) {
+      return { hasUpdate: false, currentVersion: this.currentVersion };
+    }
+
+    const hasUpdate = isVersionNewer(remoteVersion, this.currentVersion);
+    const setupAsset = Array.isArray(payload.assets)
+      ? payload.assets.find(a => a.name && a.name.toLowerCase().includes('setup') && a.name.endsWith('.exe'))
+      : null;
+
+    const downloadUrl = setupAsset?.browser_download_url || payload.downloadUrl || payload.url || '';
+
     return {
       hasUpdate,
       currentVersion: this.currentVersion,
-      latestVersion: payload.version,
-      releaseNotes: payload.releaseNotes || 'Melhorias e correções.',
-      downloadUrl: payload.downloadUrl || payload.url || '',
+      latestVersion: String(remoteVersion).replace(/^v/i, ''),
+      releaseNotes: payload.body || payload.releaseNotes || 'Melhorias e correções.',
+      downloadUrl,
       mandatory: payload.mandatory === true,
       rollbackAvailable: this.rollbackAvailable
     };
@@ -246,6 +254,25 @@ class GatilhoUpdater {
   async checkForUpdates(silent = true) {
     if (this.isChecking) return { status: 'checking' };
     this.isChecking = true;
+
+    if (autoUpdater && electronApp && electronApp.isPackaged) {
+      try {
+        if (!silent) console.log(`[Updater] Verificando atualizações no GitHub (${this.owner}/${this.repo})...`);
+        const result = await autoUpdater.checkForUpdates();
+        this.isChecking = false;
+        if (result && result.updateInfo) {
+          return {
+            hasUpdate: isVersionNewer(result.updateInfo.version, this.currentVersion),
+            currentVersion: this.currentVersion,
+            latestVersion: result.updateInfo.version,
+            releaseNotes: result.updateInfo.releaseNotes || 'Nova versão disponível.',
+            downloadUrl: `https://github.com/${this.owner}/${this.repo}/releases/tag/v${result.updateInfo.version}`
+          };
+        }
+      } catch (err) {
+        if (!silent) console.warn('[Updater] electron-updater nativo falhou, consultando API pública:', err.message);
+      }
+    }
 
     try {
       if (!silent) console.log(`[Updater] Verificando atualizações em: ${this.updateUrl}`);

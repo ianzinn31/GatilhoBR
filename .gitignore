@@ -20,6 +20,8 @@ scratch/
 scratch_*.js
 *.flag
 .tempmediaStorage/
+.tmp.driveupload/
+*.driveupload*
 
 # Environment & Config
 .env

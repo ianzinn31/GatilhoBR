@@ -11,6 +11,7 @@
     "build:release": "npm run build:native-host && npm run build:extension-release && npm run dist",
     "test": "node --test tests/**/*.test.js tests/*.test.js",
     "reset-onboarding": "powershell -ExecutionPolicy Bypass -File scripts/reset-onboarding.ps1",
+    "release:publish": "node scripts/deploy-github-release.js",
     "dist": "npm run build:native-host && electron-builder --win",
     "pack": "npm run build:native-host && electron-builder --dir"
   },
@@ -35,6 +36,11 @@
     "productName": "GatilhoBR",
     "directories": {
       "output": "dist-desktop"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "ianzinn31",
+      "repo": "GatilhoBR"
     },
     "win": {
       "target": [

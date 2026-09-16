@@ -5,11 +5,14 @@ const path = require('path');
 const https = require('https');
 const { execSync } = require('child_process');
 
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8'));
+
 const REPO_OWNER = 'ianzinn31';
 const REPO_NAME = 'GatilhoBR';
-const TAG_NAME = 'v4.3.0';
-const RELEASE_NAME = 'GatilhoBR v4.3.0 - Instalador Oficial';
-const PROJECT_ROOT = path.resolve(__dirname, '..');
+const APP_VERSION = pkg.version || '4.3.0';
+const TAG_NAME = `v${APP_VERSION}`;
+const RELEASE_NAME = `GatilhoBR v${APP_VERSION} - Instalador Oficial`;
 
 // 1. Obtém o token do GitHub Credential Manager
 function getGitHubToken() {
@@ -249,57 +252,67 @@ Versão oficial e limpa para sincronização e disparo de apostas esportivas de 
     }
   }
 
-  // 5. Upload dos executáveis do instalador
-  const setupExe = path.join(PROJECT_ROOT, 'dist-desktop', 'GatilhoBR Setup 4.3.0.exe');
-  const portableExe = path.join(PROJECT_ROOT, 'dist-desktop', 'GatilhoBR 4.3.0.exe');
+  // 5. Upload dos executáveis e metadados do instalador (latest.yml para auto-update)
+  const filesToUpload = [
+    {
+      path: path.join(PROJECT_ROOT, 'dist-desktop', `GatilhoBR Setup ${APP_VERSION}.exe`),
+      name: `GatilhoBR-Setup-${APP_VERSION}.exe`,
+      contentType: 'application/octet-stream'
+    },
+    {
+      path: path.join(PROJECT_ROOT, 'dist-desktop', `GatilhoBR Setup ${APP_VERSION}.exe`),
+      name: `GatilhoBR.Setup.${APP_VERSION}.exe`,
+      contentType: 'application/octet-stream'
+    },
+    {
+      path: path.join(PROJECT_ROOT, 'dist-desktop', `GatilhoBR ${APP_VERSION}.exe`),
+      name: `GatilhoBR.${APP_VERSION}.exe`,
+      contentType: 'application/octet-stream'
+    },
+    {
+      path: path.join(PROJECT_ROOT, 'dist-desktop', 'latest.yml'),
+      name: 'latest.yml',
+      contentType: 'text/yaml'
+    },
+    {
+      path: path.join(PROJECT_ROOT, 'dist-desktop', `GatilhoBR Setup ${APP_VERSION}.exe.blockmap`),
+      name: `GatilhoBR-Setup-${APP_VERSION}.exe.blockmap`,
+      contentType: 'application/octet-stream'
+    },
+    {
+      path: path.join(PROJECT_ROOT, 'dist-desktop', `GatilhoBR Setup ${APP_VERSION}.exe.blockmap`),
+      name: `GatilhoBR.Setup.${APP_VERSION}.exe.blockmap`,
+      contentType: 'application/octet-stream'
+    }
+  ];
 
-  if (fs.existsSync(setupExe)) {
-    // Se o asset já existir, remove antes de re-upar
+  for (const item of filesToUpload) {
+    if (!fs.existsSync(item.path)) continue;
+
+    // Remove asset pré-existente com o mesmo nome na release
     if (releaseData.assets && releaseData.assets.length > 0) {
       for (const asset of releaseData.assets) {
-        if (asset.name === 'GatilhoBR.Setup.4.3.0.exe' || asset.name === 'GatilhoBR Setup 4.3.0.exe') {
+        if (asset.name === item.name) {
           console.log(`[Asset] Removendo versão anterior de ${asset.name}...`);
-          await githubRequest({
-            path: `/repos/${REPO_OWNER}/${REPO_NAME}/releases/assets/${asset.id}`,
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          try {
+            await githubRequest({
+              path: `/repos/${REPO_OWNER}/${REPO_NAME}/releases/assets/${asset.id}`,
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          } catch (_) {}
         }
       }
     }
 
     const upRes = await uploadReleaseAsset({
       uploadUrl: releaseData.upload_url,
-      filePath: setupExe,
-      fileName: 'GatilhoBR.Setup.4.3.0.exe',
-      contentType: 'application/octet-stream',
+      filePath: item.path,
+      fileName: item.name,
+      contentType: item.contentType,
       token
     });
-    console.log('[OK] GatilhoBR.Setup.4.3.0.exe enviado para a Release! Status:', upRes.status);
-  }
-
-  if (fs.existsSync(portableExe)) {
-    if (releaseData.assets && releaseData.assets.length > 0) {
-      for (const asset of releaseData.assets) {
-        if (asset.name === 'GatilhoBR.4.3.0.exe' || asset.name === 'GatilhoBR 4.3.0.exe') {
-          console.log(`[Asset] Removendo versão anterior de ${asset.name}...`);
-          await githubRequest({
-            path: `/repos/${REPO_OWNER}/${REPO_NAME}/releases/assets/${asset.id}`,
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
-          });
-        }
-      }
-    }
-
-    const upResPortable = await uploadReleaseAsset({
-      uploadUrl: releaseData.upload_url,
-      filePath: portableExe,
-      fileName: 'GatilhoBR.4.3.0.exe',
-      contentType: 'application/octet-stream',
-      token
-    });
-    console.log('[OK] GatilhoBR.4.3.0.exe enviado para a Release! Status:', upResPortable.status);
+    console.log(`[OK] ${item.name} enviado para a Release! Status:`, upRes.status);
   }
 
   console.log('\n====================================================');
