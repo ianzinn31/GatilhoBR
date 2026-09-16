@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GatilhoBR Background Engine</title>
+</head>
+<body>
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('[Background Window Uncaught Error]', message, 'at', source, ':', lineno, error);
+    };
+    window.onunhandledrejection = function(event) {
+      console.error('[Background Window Unhandled Rejection]', event.reason);
+    };
+
+    // Polyfill robusto de importScripts para execução síncrona segura no Electron
+    if (typeof importScripts === 'undefined') {
+      window.importScripts = function(...urls) {
+        for (const url of urls) {
+          try {
+            let code = null;
+            const cleanPath = url.startsWith('/') ? url.slice(1) : url;
+            if (window.__gbrElectronApi && typeof window.__gbrElectronApi.readFileSync === 'function') {
+              code = window.__gbrElectronApi.readFileSync(cleanPath);
+            }
+            if (!code) {
+              try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '../' + cleanPath, false);
+                xhr.send(null);
+                if (xhr.status === 200 || xhr.status === 0) {
+                  code = xhr.responseText;
+                }
+              } catch (xhrErr) {}
+            }
+            if (code) {
+              eval.call(window, code + '\n//# sourceURL=gatilhobr://' + cleanPath);
+            } else {
+              console.error('[Background Runner] Falha ao ler script:', url);
+            }
+          } catch (err) {
+            console.error('[Background Runner] Erro ao executar script via importScripts:', url, err);
+          }
+        }
+      };
+    }
+  </script>
+  <script src="chrome-polyfill.js"></script>
+  <script src="../src/core/directOrderAutoSetup.js"></script>
+  <script src="../background.js"></script>
+</body>
+</html>

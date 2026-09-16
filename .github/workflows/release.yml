@@ -1,0 +1,64 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, Sign and Publish Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Execute automated test suite
+        run: npm test
+
+      - name: Build Native Messaging host executable
+        run: npm run build:native-host
+
+      - name: Build signed Extension CRX & updates.xml
+        env:
+          GBR_CHANNEL: stable
+          GBR_UPDATE_BASE_URL: https://releases.gatilhobr.com
+          GBR_EXTENSION_PRIVATE_KEY: ${{ secrets.GBR_EXTENSION_PRIVATE_KEY }}
+        run: npm run build:extension-release
+
+      - name: Build NSIS Desktop Installer
+        env:
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: npm run dist
+
+      - name: Generate Checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist-artifacts
+          Copy-Item "release/stable/*" -Destination "dist-artifacts/" -Force -ErrorAction SilentlyContinue
+          Copy-Item "dist-desktop/*.exe" -Destination "dist-artifacts/" -Force -ErrorAction SilentlyContinue
+          Get-FileHash dist-artifacts/* -Algorithm SHA256 | Out-File -FilePath "dist-artifacts/SHA256SUMS.txt" -Encoding utf8
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist-artifacts/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true

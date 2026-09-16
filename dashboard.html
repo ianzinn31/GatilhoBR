@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ GatilhoBR - Painel de Controle ao Vivo</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- MODAL DE AUTENTICAÇÃO E LICENÇA (STITCH PROTOTYPE) -->
+  <div id="authModal" class="auth-modal-overlay" style="display: none;">
+    <div class="auth-card" style="max-width: 380px; width: 100%; background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 28px 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.1); box-sizing: border-box;">
+      <div class="auth-header" style="text-align: center; margin-bottom: 20px;">
+        <h1 class="auth-logo" style="font-size: 24px; font-weight: 800; color: #10B981; margin: 0 0 6px 0; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          GatilhoBR <span style="color: #10B981;">⚡</span>
+        </h1>
+        <p id="authSubtitle" class="auth-subtitle" style="font-size: 13px; color: #94A3B8; margin: 0; font-weight: 500;">
+          Autenticação & Validação de Licença
+        </p>
+      </div>
+
+      <!-- BANNER DE STATUS DO AUTH -->
+      <div id="authStatusBanner" class="auth-status-banner"></div>
+
+      <!-- ALTERNADOR DE ABAS -->
+      <div id="authTabsWrapper" class="auth-tabs" style="display: flex; gap: 4px; background: #0B0F19; padding: 4px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.06);">
+        <button id="tabSignIn" class="auth-tab active" type="button" style="flex: 1; border: none; font-size: 13px; font-weight: 700; font-family: inherit; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">Entrar</button>
+        <button id="tabSignUp" class="auth-tab" type="button" style="flex: 1; border: none; font-size: 13px; font-weight: 700; font-family: inherit; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">Criar Conta (Teste 24h)</button>
+      </div>
+
+      <!-- BANNER PROMOCIONAL (MODO CRIAR CONTA) -->
+      <div id="authPromoBanner" style="display: none; background: rgba(16, 185, 129, 0.08); border: 1px solid #10B981; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">🎁</span>
+        <div style="font-size: 12px; color: #F8FAFC; line-height: 1.4;">
+          Ganhe <b style="color: #10B981;">24h de acesso premium</b> instantâneo ao se cadastrar
+        </div>
+      </div>
+
+      <!-- FORMULÁRIO -->
+      <form id="authForm" class="auth-form" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+        <div id="authNameGroup" class="form-group" style="display: none; flex-direction: column; gap: 6px;">
+          <label for="authName" style="font-size: 12px; font-weight: 600; color: #94A3B8;">Nome Completo</label>
+          <input type="text" id="authName" placeholder="Seu nome completo" style="background: #0B0F19; border: 1px solid rgba(255, 255, 255, 0.08); color: #F8FAFC; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; width: 100%; box-sizing: border-box;">
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="authEmail" style="font-size: 12px; font-weight: 600; color: #94A3B8;">E-mail</label>
+          <input type="email" id="authEmail" placeholder="seuemail@exemplo.co" required autocomplete="email" style="background: #0B0F19; border: 1px solid rgba(255, 255, 255, 0.08); color: #F8FAFC; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; width: 100%; box-sizing: border-box;">
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="authPassword" style="font-size: 12px; font-weight: 600; color: #94A3B8;">Senha</label>
+          <input type="password" id="authPassword" placeholder="••••••••" required autocomplete="current-password" style="background: #0B0F19; border: 1px solid rgba(255, 255, 255, 0.08); color: #F8FAFC; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; width: 100%; box-sizing: border-box;">
+        </div>
+
+        <label id="authRememberGroup" class="auth-remember-access">
+          <input type="checkbox" id="authRememberAccess" checked>
+          <span class="auth-remember-control" aria-hidden="true"></span>
+          <span class="auth-remember-copy">
+            <strong>Lembrar meu acesso</strong>
+            <small>Mantém a sessão neste navegador. Sua senha não será salva.</small>
+          </span>
+        </label>
+
+        <div id="authConfirmPasswordGroup" class="form-group" style="display: none; flex-direction: column; gap: 6px;">
+          <label for="authConfirmPassword" style="font-size: 12px; font-weight: 600; color: #94A3B8;">Confirmar Senha</label>
+          <input type="password" id="authConfirmPassword" placeholder="••••••••" style="background: #0B0F19; border: 1px solid rgba(255, 255, 255, 0.08); color: #F8FAFC; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; width: 100%; box-sizing: border-box;">
+        </div>
+
+        <button id="btnAuthSubmit" type="submit" class="btn-auth-submit" style="width: 100%; background: #10B981; border: none; color: #090D16; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; font-family: inherit; cursor: pointer; margin-top: 6px; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
+          ⚡ Entrar no GatilhoBR
+        </button>
+      </form>
+
+      <!-- VIEW DE VERIFICAÇÃO DE E-MAIL (PÓS-CADASTRO) -->
+      <div id="verify-email-view" style="display: none; text-align: center; flex-direction: column; align-items: center; gap: 14px; margin-top: 4px;">
+        <div class="verify-email-icon-wrapper" style="margin-bottom: 4px;">
+          <div style="font-size: 48px; filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.6)); animation: pulseNeon 2s infinite ease-in-out;">📩</div>
+        </div>
+
+        <h2 style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0;">Verifique seu E-mail</h2>
+
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+          Enviamos um link de confirmação para <b id="user-registered-email" style="color: var(--accent-color);">seu-email@exemplo.com</b>. Clique no link do e-mail para ativar seu teste gratuito de 24 horas.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; color: #ffcc00; background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); padding: 8px 12px; border-radius: 20px; width: 100%; box-sizing: border-box;">
+          <span style="display: inline-block; width: 12px; height: 12px; border: 2px solid #ffcc00; border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear;"></span>
+          ⏱️ Aguardando confirmação em tempo real...
+        </div>
+
+        <button id="btnCheckEmailConfirmed" type="button" style="width: 100%; background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 10px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s ease; margin-top: 4px;">
+          Já Confirmei o E-mail
+        </button>
+
+        <button id="btnResendEmail" type="button" style="background: transparent; border: none; color: #8b949e; font-size: 11px; font-weight: 600; cursor: pointer; text-decoration: underline; transition: color 0.2s ease;">
+          Não recebeu? Reenviar e-mail de confirmação
+        </button>
+      </div>
+
+      <!-- VIEW DE RENOVAÇÃO / CHECKOUT PIX DINÂMICO -->
+      <div id="renew-subscription-view" style="display: none; text-align: center; flex-direction: column; align-items: center; gap: 14px; margin-top: 4px;">
+        <div style="font-size: 36px; margin-bottom: 2px;">💎</div>
+        <h2 style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0;">Assinatura Expirada</h2>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+          Renove sua licença do GatilhoBR por apenas <b>R$ 50,00 / mês</b> e garanta acesso ilimitado ao motor ultra veloz.
+        </p>
+
+        <button id="btnGeneratePix" type="button" style="width: 100%; background: linear-gradient(135deg, #00ff88, #00e5b8); border: none; color: #0b0f14; padding: 12px; border-radius: 6px; font-weight: 900; font-size: 13px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);">
+          ⚡ Gerar QR Code Pix (R$ 50,00)
+        </button>
+
+        <!-- ÁREA DO QR CODE E COPIA E COLA -->
+        <div id="pixDisplayContainer" style="display: none; width: 100%; background: #0b0e12; border: 1px solid #1e2630; border-radius: 8px; padding: 14px; box-sizing: border-box; flex-direction: column; align-items: center; gap: 12px;">
+          <div id="pixLoadingSpinner" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: #00ff88; font-weight: bold; width: 100%;">
+            <span style="display: inline-block; width: 14px; height: 14px; border: 2px solid #00ff88; border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear;"></span>
+            Gerando Pix Seguro...
+          </div>
+
+          <div id="pixContentWrapper" style="display: none; flex-direction: column; align-items: center; gap: 12px; width: 100%;">
+            <div style="background: #ffffff; padding: 10px; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);">
+              <img id="pixQrCodeImg" src="" alt="QR Code Pix" style="width: 180px; height: 180px; display: block;">
+            </div>
+
+            <div style="width: 100%; text-align: left;">
+              <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px;">Pix Copia e Cola:</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="pixCopiaEColaInput" readonly style="flex: 1; background: #141920; border: 1px solid #232d39; color: #00ff88; font-size: 11px; padding: 8px; border-radius: 4px; outline: none; font-family: monospace;">
+                <button id="btnCopyPixCode" type="button" style="background: #232d39; border: 1px solid #303b49; color: #ffffff; font-size: 11px; font-weight: bold; padding: 8px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap;">
+                  📋 Copiar
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; color: #ffcc00; background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); padding: 8px 12px; border-radius: 20px; width: 100%; box-sizing: border-box;">
+              <span style="display: inline-block; width: 12px; height: 12px; border: 2px solid #ffcc00; border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear;"></span>
+              ⏱️ Aguardando pagamento Pix em tempo real...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RENOVAÇÃO DO PIX (DARK THEME STITCH PROTOTYPE) -->
+  <div id="modal-pix" class="auth-modal-overlay" style="display: none; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);">
+    <div class="auth-card" style="max-width: 380px; width: 100%; background: #111827; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.15);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; font-weight: 800; color: #10B981; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; text-align: center;">
+          RENOVAR LICENÇA
+        </h2>
+        <button id="btn-close-pix-modal" type="button" style="background: transparent; border: none; color: #94A3B8; font-size: 20px; font-weight: bold; cursor: pointer; padding: 0 4px; line-height: 1;">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+        <!-- CONTAINER DO QR CODE -->
+        <div style="background: #FFFFFF; padding: 14px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+          <img id="pix-qr-img" src="" alt="QR Code Pix" style="width: 180px; height: 180px; display: block;">
+        </div>
+
+        <!-- CAMPO COPIA E COLA -->
+        <div style="width: 100%; text-align: left;">
+          <label style="font-size: 12px; font-weight: 700; color: #94A3B8; display: block; margin-bottom: 6px;">Copia e Cola</label>
+          <div style="display: flex; align-items: center; background: #1F2937; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 8px 12px; gap: 8px;">
+            <input type="text" id="pix-copia-e-cola" readonly style="flex: 1; background: transparent; border: none; color: #F8FAFC; font-size: 11px; outline: none; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <button id="btn-copy-pix-icon" type="button" title="Copiar" style="background: transparent; border: none; color: #10B981; font-size: 14px; cursor: pointer; padding: 2px;">📋</button>
+          </div>
+        </div>
+
+        <!-- BOTÃO PRINCIPAL DE CÓPIA DO PIX -->
+        <button id="btn-copy-pix" type="button" style="width: 100%; background: #10B981; border: none; color: #090D16; font-size: 14px; font-weight: 800; font-family: inherit; padding: 12px 16px; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;">
+          📋 Copiar Chave Pix
+        </button>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; color: #F59E0B; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 8px 12px; border-radius: 20px; width: 100%; box-sizing: border-box;">
+          <span style="display: inline-block; width: 10px; height: 10px; border: 2px solid #F59E0B; border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear;"></span>
+          Aguardando confirmação do pagamento em tempo real...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-title" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      ⚡ GatilhoBR <span class="badge-live">FORMATO PT-BR (0,50)</span>
+      <span id="desktopAppBadge" style="font-size: 11px; font-weight: 800; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2)); border: 1px solid #10B981; color: #10B981; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">🖥️ DESKTOP v4.3.0</span>
+      <span id="userLicenseBadge" style="font-size: 11px; margin-left: 6px; color: var(--accent-color); background: rgba(0, 255, 136, 0.1); border: 1px solid var(--accent-color); padding: 2px 8px; border-radius: 4px; display: none;"></span>
+      <div id="connectionStatusContainer" style="display: flex; align-items: center; gap: 6px; margin-left: 10px;">
+        <span id="statusBet365" class="status-badge inactive" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); color: #ff6b81;">[🔴 Bet365 Inativa]</span>
+        <span id="statusBetfair" class="status-badge inactive" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); color: #ff6b81;">[🔴 Betfair Inativa]</span>
+        <span id="statusBetnacional" class="status-badge inactive" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); color: #ff6b81;">[🔴 Betnacional Inativa]</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button id="btn-check-update" title="Verificar atualizações do GatilhoBR Desktop" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: #94A3B8; font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;">
+        🔄 Atualizações
+      </button>
+      <button id="btn-change-hotkey" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">
+        Atalho: <span id="dispHotkey" style="color: var(--accent-color); font-weight: bold;">ControlRight</span>
+      </button>
+      <button id="btnLogout" style="display: none; background: rgba(255, 71, 87, 0.15); border: 1px solid #ff4757; color: #ff6b81; font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        🚪 Sair
+      </button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- CARD DEDICADO: ESTAÇÃO DE TRABALHO (CASAS ATIVAS) -->
+    <div class="workstation-card">
+      <div class="workstation-header">
+        <div class="workstation-title">
+          🖥️ Estação de Trabalho (Casas Ativas)
+        </div>
+        <button id="btn-launch-houses" class="btn-primary-glow">🚀 Lançar Estação de Trabalho</button>
+      </div>
+      <div class="workstation-grid">
+        <label class="house-item">
+          <input type="checkbox" id="chk-house-bet365" class="house-checkbox" checked>
+          <img src="assets/bet365-logo.png" alt="Bet365 Logo" class="house-item-logo">
+          <span class="house-name">Bet365</span>
+          <span class="badge-status disconnected" id="status-bet365">⚪ Desconectado</span>
+        </label>
+        <label class="house-item">
+          <input type="checkbox" id="chk-house-betfair" class="house-checkbox" checked>
+          <img src="assets/betfair-logo.png" alt="Betfair Logo" class="house-item-logo">
+          <span class="house-name">Betfair Sportsbook</span>
+          <span class="badge-status disconnected" id="status-betfair">⚪ Desconectado</span>
+        </label>
+        <label class="house-item">
+          <input type="checkbox" id="chk-house-betnacional" class="house-checkbox" checked>
+          <img src="assets/betnacional-logo.png" alt="Betnacional Logo" class="house-item-logo">
+          <span class="house-name">Betnacional</span>
+          <span class="badge-status disconnected" id="status-betnacional">⚪ Desconectado</span>
+        </label>
+        <label class="house-item" id="label-house-betano">
+          <input type="checkbox" id="chk-house-betano" class="house-checkbox" checked>
+          <span class="house-name">Betano</span>
+          <span class="badge-status disconnected" id="status-betano">⚪ Desconectado</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- CARD DEDICADO: SUA ASSINATURA -->
+    <div class="subscription-card" style="background: #0F172A; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div style="font-size: 11px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 6px;">
+          💎 SUA ASSINATURA GATILHOBR
+        </div>
+        <div id="subscription-status-text" style="font-size: 13px; font-weight: 700; color: #F8FAFC;">
+          Carregando status da licença...
+        </div>
+      </div>
+      <button id="btn-renew-license" type="button" style="background: #10B981; border: none; color: #090D16; padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); white-space: nowrap;">
+        Renovar Licença (R$ 50,00 / 30 Dias)
+      </button>
+    </div>
+
+    <div class="toggle-container" style="display: flex; align-items: center; justify-content: space-between; background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
+      <div class="toggle-info" style="display: flex; flex-direction: column;">
+        <span class="toggle-title" style="color: #F8FAFC; font-size: 13px; font-weight: 700;">Modo Disparo Direto (1-Click)</span>
+        <span class="toggle-subtitle" style="color: #94A3B8; font-size: 11px; margin-top: 2px;">Dispara a aposta imediatamente ao clicar na odd</span>
+      </div>
+      <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;">
+        <input type="checkbox" id="chk-auto-trigger">
+        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #30363d; transition: .25s ease; border-radius: 24px;"></span>
+      </label>
+    </div>
+
+    <div class="betslip-banner">
+      <div>
+        <div class="betslip-title">🟢 APOSTA NO CUPOM (PRONTA PARA DISPARO):</div>
+        <div id="betslipActiveText" class="betslip-text">Clique em qualquer odd na casa para carregar no cupom</div>
+      </div>
+      <div>
+        <span style="font-size: 11px; color: var(--text-muted);">Stake: </span>
+        <span id="dispStakeText" style="font-size: 15px; font-weight: bold; color: var(--accent-color);">R$ 0,50</span>
+      </div>
+    </div>
+
+    <div class="stake-bar">
+      <span class="stake-label">ALTERAR STAKE:</span>
+      <button class="stake-btn active" data-stake="0.50">R$ 0,50</button>
+      <button class="stake-btn" data-stake="10">R$ 10</button>
+      <button class="stake-btn" data-stake="50">R$ 50</button>
+      <button class="stake-btn" data-stake="100">R$ 100</button>
+      <button class="stake-btn" data-stake="200">R$ 200</button>
+      <button class="stake-btn" data-stake="500">R$ 500</button>
+
+      <div class="stake-custom-wrapper" style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+        <span style="font-size: 11px; color: #94A3B8; font-weight: 700;">Personalizada:</span>
+        <input type="text" id="custom-stake-input" placeholder="0,50" style="background: #1E293B; border: 1px solid rgba(255, 255, 255, 0.1); color: #10B981; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; width: 75px; outline: none; font-family: inherit;">
+        <button id="btn-max-stake" title="Carregar Saldo Total da Conta" style="background: #B45309; border: none; color: #FFFFFF; padding: 7px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s ease;">
+          💰 Stake Máxima
+        </button>
+      </div>
+    </div>
+
+
+    <!-- SEÇÃO: COMPARTILHAR SETUP (PRESETS GBR-XXXX) -->
+    <section class="player-priority-card" aria-labelledby="player-priority-title">
+      <div class="player-priority-heading">
+        <div>
+          <div id="player-priority-title" class="player-priority-title">Jogadores prioritários</div>
+          <div class="player-priority-subtitle">A linha configurada sobe no mercado certo. Nenhuma aposta é feita automaticamente.</div>
+        </div>
+        <div class="player-priority-heading-actions">
+          <span id="player-priority-count" class="player-priority-count">0 regras</span>
+          <button id="open-dynamic-binds" class="dynamic-binds-open" type="button">Central de atalhos</button>
+        </div>
+      </div>
+
+      <form id="player-priority-form" class="player-priority-form">
+        <label class="player-priority-field player-priority-field--house">
+          <span>Casa</span>
+          <select id="player-priority-house">
+            <option value="bet365">Bet365</option>
+            <option value="betfair">Betfair</option>
+          </select>
+        </label>
+        <label class="player-priority-field">
+          <span>Time</span>
+          <input id="player-priority-team" type="text" maxlength="80" placeholder="Ex: Santos" list="player-priority-teams">
+        </label>
+        <label class="player-priority-field">
+          <span>Mercado</span>
+          <input id="player-priority-market" type="text" maxlength="120" placeholder="Ex: Jogador - Chutes" list="player-priority-markets">
+        </label>
+        <label class="player-priority-field">
+          <span>Jogador</span>
+          <input id="player-priority-player" type="text" maxlength="100" placeholder="Ex: Neymar" list="player-priority-players">
+        </label>
+        <button id="player-priority-save" class="player-priority-save" type="submit">Adicionar prioridade</button>
+      </form>
+
+      <datalist id="player-priority-teams"></datalist>
+      <datalist id="player-priority-markets"></datalist>
+      <datalist id="player-priority-players"></datalist>
+      <div id="player-priority-status" class="player-priority-status" role="status" aria-live="polite"></div>
+      <div id="player-priority-list" class="player-priority-list"></div>
+    </section>
+
+    <div id="dynamic-binds-modal" class="dynamic-binds-modal" hidden>
+      <section class="dynamic-binds-dialog" role="dialog" aria-modal="true" aria-labelledby="dynamic-binds-title">
+        <header class="dynamic-binds-header">
+          <div>
+            <div class="dynamic-binds-eyebrow">Gatilhos contextuais</div>
+            <h2 id="dynamic-binds-title">Central de atalhos</h2>
+            <p>Escolha entre os dados encontrados ao vivo. Não é necessário digitar nomes de mercados ou jogadores.</p>
+          </div>
+          <button id="close-dynamic-binds" class="dynamic-binds-close" type="button" aria-label="Fechar central de atalhos">×</button>
+        </header>
+
+        <form id="dynamic-bind-form" class="dynamic-bind-form">
+          <label class="dynamic-bind-field dynamic-bind-field--key">
+            <span>Tecla</span>
+            <button id="dynamic-bind-key" class="dynamic-bind-key" type="button" data-key-code="">Escolher tecla</button>
+          </label>
+          <label class="dynamic-bind-field">
+            <span>Casa</span>
+            <select id="dynamic-bind-house">
+              <option value="bet365">Bet365</option>
+              <option value="betfair">Betfair</option>
+            </select>
+          </label>
+          <label class="dynamic-bind-field">
+            <span>Time</span>
+            <select id="dynamic-bind-team">
+              <option value="">Aguardando jogo ao vivo…</option>
+            </select>
+          </label>
+          <label class="dynamic-bind-field">
+            <span>Mercado</span>
+            <select id="dynamic-bind-market">
+              <option value="">Escolha um mercado…</option>
+            </select>
+          </label>
+          <label class="dynamic-bind-field">
+            <span>Jogador</span>
+            <select id="dynamic-bind-player">
+              <option value="">Escolha um jogador…</option>
+            </select>
+          </label>
+          <label class="dynamic-bind-field dynamic-bind-line-field">
+            <span>Linha desejada</span>
+            <select id="dynamic-bind-line">
+              <option value="first_available">Automática — primeira linha aberta</option>
+              <option value="1+">1+</option>
+              <option value="2+">2+</option>
+              <option value="3+">3+</option>
+              <option value="4+">4+</option>
+              <option value="5+">5+</option>
+              <option value="6+">6+</option>
+              <option value="7+">7+</option>
+              <option value="8+">8+</option>
+              <option value="9+">9+</option>
+              <option value="10+">10+</option>
+              <option value="11+">11+</option>
+              <option value="12+">12+</option>
+              <option value="13+">13+</option>
+              <option value="14+">14+</option>
+              <option value="15+">15+</option>
+              <option value="16+">16+</option>
+              <option value="17+">17+</option>
+              <option value="18+">18+</option>
+              <option value="19+">19+</option>
+              <option value="20+">20+</option>
+            </select>
+          </label>
+          <div class="dynamic-bind-line-help">
+            <span class="dynamic-bind-line-dot"></span>
+            <span id="dynamic-bind-live-state">Aguardando uma partida conectada</span>
+          </div>
+          <div class="dynamic-bind-preview" id="dynamic-bind-preview">Selecione os campos para visualizar o atalho.</div>
+          <label class="dynamic-bind-copy-house">
+            <input id="dynamic-bind-copy-house" type="checkbox">
+            <span>Criar também o equivalente na outra casa, quando estiver disponível</span>
+          </label>
+          <div class="dynamic-bind-actions">
+            <button id="dynamic-bind-cancel-edit" class="dynamic-bind-cancel-edit" type="button" hidden>Cancelar edição</button>
+            <button id="dynamic-bind-test" class="dynamic-bind-test" type="button">Testar sem apostar</button>
+            <button class="dynamic-bind-save" type="submit">Salvar atalho</button>
+          </div>
+        </form>
+
+        <div id="dynamic-bind-status" class="dynamic-bind-status" role="status" aria-live="polite"></div>
+        <div id="dynamic-bind-list" class="dynamic-bind-list"></div>
+      </section>
+    </div>
+
+    <div class="preset-share-card" style="background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px; margin-top: 14px; margin-bottom: 14px;">
+      <div style="font-size: 14px; font-weight: 800; color: #F8FAFC; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+        Compartilhar Setup (Presets GBR)
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <!-- ÁREA DE EXPORTAÇÃO -->
+        <div style="background: #1E293B; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #F8FAFC; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            🚀 EXPORTAR CONFIGURAÇÃO
+          </div>
+          <input type="text" id="presetNameInput" placeholder="Ex: Estratégia Escanteios" style="width: 100%; background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 12px; outline: none; box-sizing: border-box; margin-bottom: 10px;">
+          <button id="btnExportPreset" style="width: 100%; background: #10B981; border: none; color: #090D16; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);">
+            Gerar Código de Compartilhamento
+          </button>
+
+          <div id="exportResultWrapper" style="display: none; margin-top: 10px; flex-direction: column; gap: 6px;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="text" id="presetGeneratedCode" readonly style="flex: 1; background: #0F172A; border: 1px solid #10B981; color: #10B981; font-weight: 900; font-size: 14px; text-align: center; padding: 6px; border-radius: 6px; outline: none;">
+              <button id="btnCopyPresetCode" style="background: #1E293B; border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; font-size: 11px; font-weight: bold; padding: 6px 10px; border-radius: 6px; cursor: pointer;">
+                📋 Copiar
+              </button>
+            </div>
+          </div>
+          <div id="exportStatusBanner" style="display: none; font-size: 11px; font-weight: bold; margin-top: 6px;"></div>
+        </div>
+
+        <!-- ÁREA DE IMPORTAÇÃO -->
+        <div style="background: #1E293B; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #F8FAFC; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            📤 IMPORTAR CONFIGURAÇÃO
+          </div>
+          <input type="text" id="presetCodeInput" placeholder="EX: GBR-8X91" style="width: 100%; background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 12px; outline: none; box-sizing: border-box; margin-bottom: 10px; text-transform: uppercase;">
+          <button id="btnImportPreset" style="width: 100%; background: #10B981; border: none; color: #090D16; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s ease;">
+            Importar Configuração
+          </button>
+          <div id="importStatusBanner" style="display: none; font-size: 11px; font-weight: bold; margin-top: 8px; line-height: 1.3;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPONENTE: ALTERNADOR DE CASAS DE APOSTAS E FILTRAR MERCADOS -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; margin-bottom: 12px; gap: 10px; flex-wrap: wrap;">
+      <div class="house-tabs-container">
+        <button id="tab-market-bet365" class="tab-house active" type="button">
+          <img src="assets/bet365-logo.png" alt="Bet365" class="tab-house-logo"> Bet365
+        </button>
+        <button id="tab-market-betfair" class="tab-house" type="button">
+          <img src="assets/betfair-logo.png" alt="Betfair" class="tab-house-logo"> Betfair
+        </button>
+      </div>
+
+      <div style="position: relative; display: inline-block;">
+        <select id="filter-markets" style="background: #0F172A; border: 1px solid rgba(16, 185, 129, 0.3); color: #F8FAFC; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; font-family: inherit; outline: none; cursor: pointer; transition: all 0.2s ease;">
+          <option value="all">🎛️ Filtrar Mercados: Todos</option>
+          <option value="gols">⚽ Gols</option>
+          <option value="escanteios">🚩 Escanteios / Cartões</option>
+          <option value="resultado">🎯 Resultado Final (1X2)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="markets-container">
+      <div style="font-size: 12px; color: #ffcc00; padding: 10px; background: var(--card-bg); border-radius: 6px;">
+        Aguardando dados da partida ao vivo...
+      </div>
+    </div>
+
+    <button id="btnFireNow" class="btn-fire">
+      ⚡ DISPARAR APOSTA AGORA (0ms)
+    </button>
+  </div>
+
+  <!-- MODAL DE ATUALIZAÇÃO DO DESKTOP -->
+  <div id="modal-desktop-update" class="auth-modal-overlay" style="display: none; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 99999;">
+    <div class="auth-card" style="max-width: 420px; width: 100%; background: #111827; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(16, 185, 129, 0.2);">
+      <div style="font-size: 36px; margin-bottom: 8px;">🚀</div>
+      <h2 style="font-size: 18px; font-weight: 800; color: #10B981; margin: 0 0 8px 0;">Atualização Disponível!</h2>
+      <p id="desktop-update-info" style="font-size: 12px; color: #94A3B8; margin: 0 0 16px 0; line-height: 1.5;">
+        Uma nova versão do <b>GatilhoBR Desktop</b> está disponível.
+      </p>
+      <div id="desktop-update-notes" style="background: #0B0F19; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; font-size: 11px; color: #E2E8F0; text-align: left; max-height: 120px; overflow-y: auto; margin-bottom: 16px;"></div>
+      <div style="display: flex; gap: 8px;">
+        <button id="btn-close-update-modal" type="button" style="flex: 1; background: #1E293B; border: 1px solid rgba(255,255,255,0.1); color: #94A3B8; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;">Lembrar Depois</button>
+        <button id="btn-download-update" type="button" style="flex: 1; background: #10B981; border: none; color: #090D16; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 0 15px rgba(16,185,129,0.4);">Baixar Atualização</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/userScopedStorage.js"></script>
+  <script src="src/supabaseClient.js"></script>
+  <script src="src/services/licensingEngine.js"></script>
+  <script src="src/authManager.js"></script>
+  <script src="src/subscriptionManager.js"></script>
+  <script src="src/presetManager.js"></script>
+  <script src="src/hotkeyConfigurator.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

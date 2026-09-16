@@ -1,0 +1,9 @@
+{
+  "name": "com.gatilhobr.native_messaging",
+  "description": "GatilhoBR local diagnostic relay",
+  "path": "C:\\Program Files\\GatilhoBR\\native-host\\gatilhobr-host.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://REPLACE_WITH_GATILHOBR_EXTENSION_ID/"
+  ]
+}
