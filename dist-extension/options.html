@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - GatilhoBR</title>
+  <style>
+    :root {
+      --bg-color: #0c1017;
+      --card-bg: #151c24;
+      --border-color: #24303d;
+      --accent-color: #00ffcc;
+      --accent-hover: #00e5b8;
+      --text-main: #ffffff;
+      --text-muted: #8c9ba5;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      padding: 32px 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      margin: 0;
+      color: var(--accent-color);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-v2 {
+      font-size: 10px;
+      background: rgba(0, 255, 204, 0.15);
+      color: var(--accent-color);
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--accent-color);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .card h3 {
+      font-size: 14px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      background: #0d1218;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent-color);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-color);
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      margin-bottom: 0;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.1s ease, filter 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      color: #000;
+      box-shadow: 0 4px 15px rgba(0, 206, 201, 0.3);
+    }
+
+    .btn-secondary {
+      background: #1f2934;
+      color: #ffffff;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--accent-color);
+      color: #000;
+      font-weight: bold;
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 6px 20px rgba(0, 255, 204, 0.4);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 99999;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚡ Configurações - GatilhoBR <span class="badge-v2">v2.0</span></h1>
+    </div>
+
+    <!-- 1. CASAS DE APOSTAS E PLATAFORMAS -->
+    <div class="card">
+      <h3>🏛️ 1. Casas de Apostas Ativas</h3>
+      <div class="form-group">
+        <label for="bookmakerSelect">Perfil da Casa de Apostas:</label>
+        <select id="bookmakerSelect">
+          <option value="auto">Detecção Automática (Todas as Casas)</option>
+          <option value="bet365">Bet365 (Futebol / Ao Vivo)</option>
+          <option value="betano">Betano</option>
+          <option value="betfair">Betfair Exchange / Esportes</option>
+          <option value="kto">KTO</option>
+          <option value="stake">Stake</option>
+          <option value="custom">Seletor CSS Personalizado</option>
+        </select>
+      </div>
+
+      <div id="customSelectorGroup" class="form-group" style="display: none;">
+        <label for="customSelector">Seletor CSS do Botão de Aposta:</label>
+        <input type="text" id="customSelector" placeholder="ex: .my-custom-bet-btn, #btn-apostar">
+      </div>
+    </div>
+
+    <!-- 2. ATALHOS DE TECLADO E VALOR (STAKE) -->
+    <div class="card">
+      <h3>⌨️ 2. Atalhos e Valor Padrão (Stake)</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="triggerKey">Tecla de Disparo Principal:</label>
+          <select id="triggerKey">
+            <option value="Space">Barra de Espaço</option>
+            <option value="KeyZ">Tecla Z</option>
+            <option value="KeyX">Tecla X</option>
+            <option value="Enter">Tecla Enter</option>
+            <option value="ControlRight">Control Direito</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="defaultStake">Valor Padrão da Aposta (R$):</label>
+          <input type="number" id="defaultStake" placeholder="ex: 50" min="1" step="1">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <div class="checkbox-group">
+          <input type="checkbox" id="autoFillStake">
+          <label for="autoFillStake">Preencher valor (Stake) automaticamente ao apertar a tecla</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. MERCADO E REGRAS DE AUTOMAÇÃO -->
+    <div class="card">
+      <h3>🎯 3. Mercado Alvo & Automação de Cupom</h3>
+      <div class="form-group">
+        <label for="targetMarket">Mercado Preferencial:</label>
+        <select id="targetMarket">
+          <option value="any">Qualquer Mercado Selecionado no Cupom</option>
+          <option value="next_goal">Próximo Gol / Over Gols</option>
+          <option value="match_result">Resultado Final (1X2)</option>
+          <option value="corners">Escanteios (Over/Under)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="autoAcceptOdds">
+          <label for="autoAcceptOdds">Auto-aceitar alterações de Odds instantaneamente</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="showFloatingBtn">
+          <label for="showFloatingBtn">Exibir Botão Flutuante "⚡ DISPARAR (0ms)" na tela</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- AÇÕES DE SALVAR -->
+    <div class="actions">
+      <button id="btnSave" class="btn btn-primary">💾 Salvar Configurações</button>
+      <button id="btnReset" class="btn btn-secondary">🔄 Restaurar Padrões</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">✅ Configurações Salvas com Sucesso!</div>
+
+  <script src="src/userScopedStorage.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

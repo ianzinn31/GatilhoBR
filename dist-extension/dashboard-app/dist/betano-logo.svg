@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" width="160" height="48">
+  <rect width="48" height="48" rx="24" fill="#F05023"/>
+  <path d="M19 13h10c3.5 0 6 1.8 6 4.8 0 2-1 3.5-2.7 4.2 2.2.7 3.7 2.4 3.7 5 0 3.5-2.8 5.5-6.5 5.5H19V13zm5.2 4.6v4.3h4.5c1.5 0 2.5-.8 2.5-2.1s-1-2.2-2.5-2.2h-4.5zm0 8.3v4.6h4.8c1.6 0 2.8-.9 2.8-2.3s-1.2-2.3-2.8-2.3h-4.8z" fill="#FFFFFF"/>
+  <text x="58" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">BETANO</text>
+</svg>

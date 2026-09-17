@@ -1,0 +1,9 @@
+{
+  "name": "com.gatilho.native_messaging",
+  "description": "GatilhoBR Native Messaging host",
+  "path": "C:\\Program Files\\GatilhoBR\\native-host\\gatilhobr-host.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://dkchfkmohlejeflkdfhinlfgbeihfegh/"
+  ]
+}

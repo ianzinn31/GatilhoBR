@@ -1,0 +1,368 @@
+{
+  "manifest_version": 3,
+  "name": "GatilhoBR",
+  "version": "4.3.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu/QaZ/2R+p6z+OGI7SN9sgwefJDQWsQXlOku92sdZ70Smw+mdynW05Jvz+jDDBpo+Se7Z4p9EQgEwTN9Hfha8gkKj8l8LJL42VsvHDFBuqfh8LLMoekUN6/p7BjHmZyxrfFGpUa0+8W4LvPuLb90tAE836L8zEpVMG8JN86Fd3NUoY35f/KBl5dik/z6xpU6IeZrJcppkh9R+k0WLTKkjg6qjqSHivGuNFfYjijsG8tYq+95+gZnMRbFz5CIv8CgJ1QkCfGZmGAb0X3xnEK8Tp3u76t+IIt9yRrpCYqrlitkXxF+84jaCd3Q8sUhSSWlO1Te7d/5P25bdYPAB/38CQIDAQAB",
+  "description": "Sincroniza mercados ao vivo e coordena binds entre abas, com execução por casa e diagnóstico local.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs",
+    "debugger",
+    "webRequest",
+    "nativeMessaging"
+  ],
+  "host_permissions": [
+    "https://sclfkfghbvuchyubcksr.supabase.co/*",
+    "https://api.cakto.com.br/*",
+    "https://cakto-sdk.pages.dev/*",
+    "https://d354c9v5bptm0r.cloudfront.net/*",
+    "https://kvnpji2t.jjysjnuego.com/*",
+    "https://*.nethone.com/*",
+    "https://*.betfair.bet.br/*",
+    "https://*.betfair.com/*",
+    "https://*.bet365.bet.br/*",
+    "https://*.bet365.com/*",
+    "https://*.betnacional.com/*",
+    "https://*.betnacional.bet.br/*",
+    "https://*.betnacional.br/*",
+    "https://betano.bet.br/*",
+    "https://*.betano.bet.br/*",
+    "https://betmgm.bet.br/*",
+    "https://*.betmgm.bet.br/*",
+    "https://superbet.bet.br/*",
+    "https://*.superbet.bet.br/*",
+    "https://superbet.com/*",
+    "https://*.superbet.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "sandbox": {
+    "pages": [
+      "dashboard-app/dist/cakto-sdk-bridge.html"
+    ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';",
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups; script-src 'self' https://cakto-sdk.pages.dev https://d354c9v5bptm0r.cloudfront.net; connect-src 'self' https://api.cakto.com.br https://cakto-sdk.pages.dev https://d354c9v5bptm0r.cloudfront.net https://kvnpji2t.jjysjnuego.com https://*.nethone.com; img-src 'self' data: https:; object-src 'self';"
+  },
+  "action": {
+    "default_title": "GatilhoBR",
+    "default_icon": {
+      "16": "assets/icons/gatilho-16.png",
+      "32": "assets/icons/gatilho-32.png",
+      "48": "assets/icons/gatilho-48.png",
+      "128": "assets/icons/gatilho-128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/gatilho-16.png",
+    "32": "assets/icons/gatilho-32.png",
+    "48": "assets/icons/gatilho-48.png",
+    "128": "assets/icons/gatilho-128.png"
+  },
+  "commands": {
+    "dynamic-bind-slot-1": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1",
+        "mac": "Command+Shift+1"
+      },
+      "description": "Disparar bind global 1",
+      "global": true
+    },
+    "dynamic-bind-slot-2": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+2",
+        "mac": "Command+Shift+2"
+      },
+      "description": "Disparar bind global 2",
+      "global": true
+    },
+    "dynamic-bind-slot-3": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+3",
+        "mac": "Command+Shift+3"
+      },
+      "description": "Disparar bind global 3",
+      "global": true
+    },
+    "dynamic-bind-slot-4": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+4",
+        "mac": "Command+Shift+4"
+      },
+      "description": "Disparar bind global 4",
+      "global": true
+    },
+    "trigger_place_bet_global": {
+      "description": "Disparar Aposta (Global / Sem Foco)",
+      "global": true
+    },
+    "trigger-focused": {
+      "description": "Disparar Aposta (Aba em Foco)",
+      "global": true
+    },
+    "trigger-bet365": {
+      "description": "Disparar Aposta Bet365 (Background)",
+      "global": true
+    },
+    "trigger-betfair": {
+      "description": "Disparar Aposta Betfair (Background)",
+      "global": true
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.bet365.com/*",
+        "https://*.bet365.bet.br/*",
+        "https://*.bet365.es/*"
+      ],
+      "js": [
+        "inject.js",
+        "src/core/networkDispatcher.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://*.bet365.com/*",
+        "https://*.bet365.bet.br/*",
+        "https://*.bet365.es/*"
+      ],
+      "js": [
+        "src/bet365NetworkFeedBridge.js",
+        "src/core/directOrderBridge.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://*.bet365.com/*",
+        "https://*.bet365.bet.br/*",
+        "https://*.bet365.es/*"
+      ],
+      "js": [
+        "src/bet365FrameSentinel.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "matches": [
+        "https://*.bet365.com/*",
+        "https://*.bet365.bet.br/*",
+        "https://*.bet365.es/*"
+      ],
+      "js": [
+        "src/securityGuard.js",
+        "src/utils/executionReport.js",
+        "src/utils/marketIndex.js",
+        "src/core/selectionResolver.js",
+        "src/userScopedStorage.js",
+        "src/config.js",
+        "src/core/directOrderPreferences.js",
+        "src/ui.js",
+        "src/supabaseClient.js",
+        "src/services/licensingEngine.js",
+        "src/authManager.js",
+        "src/presetManager.js",
+        "src/utils/domWaiter.js",
+        "src/stakeEngine.js",
+        "src/placeBetEngine.js",
+        "src/presetEngine.js",
+        "src/gridScraper.js",
+        "src/utils/bet365MarketTitle.js",
+        "src/quickBindEngine.js",
+        "src/quickExecEngine.js",
+        "src/hotkeyEngine.js",
+        "src/hotkeyConfigurator.js",
+        "src/utils/humanizer.js",
+        "src/adapters/bet365Adapter.js",
+        "src/triggerEngine.js",
+        "src/parser.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://*.betfair.com/*",
+        "https://*.betfair.bet.br/*",
+        "https://*.betfair.es/*"
+      ],
+      "js": [
+        "src/securityGuard.js",
+        "src/utils/executionReport.js",
+        "src/utils/marketIndex.js",
+        "src/userScopedStorage.js",
+        "src/config.js",
+        "src/ui.js",
+        "src/supabaseClient.js",
+        "src/services/licensingEngine.js",
+        "src/authManager.js",
+        "src/presetManager.js",
+        "src/utils/domWaiter.js",
+        "src/stakeEngine.js",
+        "src/placeBetEngine.js",
+        "src/presetEngine.js",
+        "src/quickBindEngine.js",
+        "src/quickExecEngine.js",
+        "src/hotkeyEngine.js",
+        "src/hotkeyConfigurator.js",
+        "src/utils/humanizer.js",
+        "src/adapters/betfairSportsbookAdapter.js",
+        "src/triggerEngine.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://*.betnacional.com/*",
+        "https://*.betnacional.bet.br/*",
+        "https://*.betnacional.br/*"
+      ],
+      "js": [
+        "src/securityGuard.js",
+        "src/utils/executionReport.js",
+        "src/utils/marketIndex.js",
+        "src/userScopedStorage.js",
+        "src/config.js",
+        "src/ui.js",
+        "src/supabaseClient.js",
+        "src/services/licensingEngine.js",
+        "src/authManager.js",
+        "src/presetManager.js",
+        "src/utils/domWaiter.js",
+        "src/stakeEngine.js",
+        "src/placeBetEngine.js",
+        "src/presetEngine.js",
+        "src/quickBindEngine.js",
+        "src/quickExecEngine.js",
+        "src/hotkeyEngine.js",
+        "src/hotkeyConfigurator.js",
+        "src/utils/humanizer.js",
+        "src/adapters/betnacionalAdapter.js",
+        "src/triggerEngine.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://betmgm.bet.br/*",
+        "https://*.betmgm.bet.br/*"
+      ],
+      "js": [
+        "src/securityGuard.js",
+        "src/utils/executionReport.js",
+        "src/utils/marketIndex.js",
+        "src/userScopedStorage.js",
+        "src/config.js",
+        "src/ui.js",
+        "src/supabaseClient.js",
+        "src/services/licensingEngine.js",
+        "src/authManager.js",
+        "src/presetManager.js",
+        "src/utils/domWaiter.js",
+        "src/stakeEngine.js",
+        "src/placeBetEngine.js",
+        "src/presetEngine.js",
+        "src/quickBindEngine.js",
+        "src/quickExecEngine.js",
+        "src/hotkeyEngine.js",
+        "src/hotkeyConfigurator.js",
+        "src/utils/humanizer.js",
+        "src/adapters/betmgmAdapter.js",
+        "src/triggerEngine.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://betano.bet.br/*",
+        "https://*.betano.bet.br/*"
+      ],
+      "js": [
+        "src/securityGuard.js",
+        "src/utils/executionReport.js",
+        "src/utils/marketIndex.js",
+        "src/userScopedStorage.js",
+        "src/config.js",
+        "src/ui.js",
+        "src/supabaseClient.js",
+        "src/services/licensingEngine.js",
+        "src/authManager.js",
+        "src/presetManager.js",
+        "src/utils/domWaiter.js",
+        "src/stakeEngine.js",
+        "src/placeBetEngine.js",
+        "src/presetEngine.js",
+        "src/quickBindEngine.js",
+        "src/quickExecEngine.js",
+        "src/hotkeyEngine.js",
+        "src/hotkeyConfigurator.js",
+        "src/utils/humanizer.js",
+        "src/adapters/betanoAdapter.js",
+        "src/triggerEngine.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "https://superbet.bet.br/*",
+        "https://*.superbet.bet.br/*",
+        "https://superbet.com/*",
+        "https://*.superbet.com/*"
+      ],
+      "js": [
+        "src/securityGuard.js",
+        "src/utils/executionReport.js",
+        "src/utils/marketIndex.js",
+        "src/userScopedStorage.js",
+        "src/config.js",
+        "src/ui.js",
+        "src/supabaseClient.js",
+        "src/services/licensingEngine.js",
+        "src/authManager.js",
+        "src/presetManager.js",
+        "src/utils/domWaiter.js",
+        "src/stakeEngine.js",
+        "src/placeBetEngine.js",
+        "src/presetEngine.js",
+        "src/quickBindEngine.js",
+        "src/quickExecEngine.js",
+        "src/hotkeyEngine.js",
+        "src/hotkeyConfigurator.js",
+        "src/utils/humanizer.js",
+        "src/adapters/superbetAdapter.js",
+        "src/triggerEngine.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false
+    }
+  ]
+}

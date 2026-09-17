@@ -22,6 +22,12 @@ test('installer-config: package.json has required NSIS and extraResources config
     (typeof res === 'object' && (res.from?.includes('Register-GatilhoBRIntegration.ps1') || res.to?.includes('register-integration.ps1')))
   );
   assert.ok(hasRegScript, 'extraResources must bundle the integration registration script');
+
+  // Verify extraResources bundle the unpacked extension directory
+  const hasExtensionBundle = extraResources.some(res =>
+    typeof res === 'object' && res.to === 'chrome-extension' && res.from === 'dist-extension'
+  );
+  assert.ok(hasExtensionBundle, 'extraResources must bundle dist-extension to chrome-extension');
 });
 
 test('installer-config: build/installer/installer.nsh exists and contains customInstall/customUnInstall hooks', () => {
@@ -75,3 +81,20 @@ test('installer-config: onboarding-launcher validates prerequisites fail-closed'
     });
   });
 });
+
+test('installer-config: prepare-extension-bundle generates valid dist-extension directory', () => {
+  const prepareScript = path.join(projectRoot, 'scripts/prepare-extension-bundle.js');
+  assert.ok(fs.existsSync(prepareScript), 'scripts/prepare-extension-bundle.js must exist');
+
+  const { prepareExtensionBundle, TARGET_DIR } = require(prepareScript);
+  const outDir = prepareExtensionBundle();
+
+  assert.equal(outDir, TARGET_DIR);
+  assert.ok(fs.existsSync(path.join(TARGET_DIR, 'manifest.json')), 'manifest.json must exist in dist-extension');
+  assert.ok(fs.existsSync(path.join(TARGET_DIR, 'background.js')), 'background.js must exist in dist-extension');
+  assert.ok(fs.existsSync(path.join(TARGET_DIR, 'content.js')), 'content.js must exist in dist-extension');
+
+  const manifest = JSON.parse(fs.readFileSync(path.join(TARGET_DIR, 'manifest.json'), 'utf8'));
+  assert.equal(manifest.version, '4.3.0');
+});
+

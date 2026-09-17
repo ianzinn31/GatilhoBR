@@ -7,13 +7,14 @@
     "start": "electron .",
     "dev": "electron . --enable-logging",
     "build:native-host": "node scripts/build-native-host.js",
+    "build:extension-bundle": "node scripts/prepare-extension-bundle.js",
     "build:extension-release": "node scripts/build-extension-release.js",
-    "build:release": "npm run build:native-host && npm run build:extension-release && npm run dist",
+    "build:release": "npm run build:native-host && npm run build:extension-bundle && npm run build:extension-release && npm run dist",
     "test": "node --test tests/**/*.test.js tests/*.test.js",
     "reset-onboarding": "powershell -ExecutionPolicy Bypass -File scripts/reset-onboarding.ps1",
     "release:publish": "node scripts/deploy-github-release.js",
-    "dist": "npm run build:native-host && electron-builder --win",
-    "pack": "npm run build:native-host && electron-builder --dir"
+    "dist": "npm run build:native-host && npm run build:extension-bundle && electron-builder --win",
+    "pack": "npm run build:native-host && npm run build:extension-bundle && electron-builder --dir"
   },
   "keywords": [
     "betting",
@@ -79,6 +80,10 @@
       "package.json"
     ],
     "extraResources": [
+      {
+        "from": "dist-extension",
+        "to": "chrome-extension"
+      },
       {
         "from": "dist-native/gatilhobr-host.exe",
         "to": "native-host/gatilhobr-host.exe"

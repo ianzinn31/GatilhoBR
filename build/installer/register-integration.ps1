@@ -32,6 +32,10 @@ if ($Uninstall) {
       Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue
     }
   }
+  $localExtDir = Join-Path $env:LOCALAPPDATA 'GatilhoBR\chrome-extension'
+  if (Test-Path -LiteralPath $localExtDir) {
+    Remove-Item -LiteralPath $localExtDir -Recurse -Force -ErrorAction SilentlyContinue
+  }
   exit 0
 }
 
@@ -73,7 +77,22 @@ $manifestJson = $manifestObj | ConvertTo-Json -Depth 4
   }
 }
 
-# 3. Cria marcador de onboarding pendente pós-instalação
+# 3. Provisionar pasta descompactada da extensão para Chrome/Edge
+$sourceExtCandidates = @(
+  (Join-Path $InstallRoot 'resources\chrome-extension'),
+  (Join-Path $InstallRoot 'chrome-extension'),
+  (Join-Path $PSScriptRoot '..\..\dist-extension'),
+  (Join-Path $PSScriptRoot '..\chrome-extension')
+)
+$sourceExt = $sourceExtCandidates | Where-Object { Test-Path -LiteralPath (Join-Path $_ 'manifest.json') } | Select-Object -First 1
+
+$extensionTargetDir = Join-Path $env:LOCALAPPDATA 'GatilhoBR\chrome-extension'
+if ($sourceExt) {
+  New-Item -ItemType Directory -Force -Path $extensionTargetDir | Out-Null
+  Copy-Item -LiteralPath "$sourceExt\*" -Destination $extensionTargetDir -Recurse -Force
+}
+
+# 4. Cria marcador de onboarding pendente pós-instalação
 $onboardingFlagDir = Join-Path $env:LOCALAPPDATA 'GatilhoBR'
 New-Item -ItemType Directory -Force -Path $onboardingFlagDir | Out-Null
 $onboardingFlag = Join-Path $onboardingFlagDir 'pending_onboarding.flag'

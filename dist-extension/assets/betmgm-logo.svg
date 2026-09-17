@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" width="160" height="48">
+  <rect width="48" height="48" rx="10" fill="#18181B" stroke="#C5A059" stroke-width="2"/>
+  <path d="M14 34V14h4.5l5.5 11 5.5-11H34v20h-4V21.5L24.5 32h-1L18 21.5V34h-4z" fill="#C5A059"/>
+  <text x="58" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="900" fill="#C5A059" letter-spacing="-0.5">BetMGM</text>
+</svg>

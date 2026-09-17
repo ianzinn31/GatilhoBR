@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background-color: #0f141c;
+      color: #ffffff;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .header h2 {
+      font-size: 14px;
+      margin: 0;
+      color: #00ffcc;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .betslip-card {
+      background: rgba(0, 255, 204, 0.08);
+      border: 1.5px solid #00ffcc;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .betslip-title {
+      font-size: 10px;
+      color: #00ffcc;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .betslip-value {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .btn-dashboard {
+      width: 100%;
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      color: #000;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 900;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 206, 201, 0.35);
+      transition: filter 0.2s ease;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-dashboard:hover { filter: brightness(1.1); }
+
+    .btn-options {
+      width: 100%;
+      background: #1f2934;
+      color: #ffffff;
+      border: 1px solid #253140;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .btn-options:hover { background: #2b394a; }
+    .footer {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #718096;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>⚡ GatilhoBR</h2>
+  </div>
+
+  <!-- APOSTA NO CUPOM -->
+  <div class="betslip-card">
+    <div class="betslip-title">🎯 Aposta Selecionada no Cupom:</div>
+    <div id="betslipActiveText" class="betslip-value">Clique em uma odd na casa para carregar</div>
+  </div>
+
+  <!-- BOTÃO PRINCIPAL: ABRIR PAINEL EM JANELA PRÓPRIA -->
+  <button id="btnOpenDashboard" class="btn-dashboard">
+    🖥️ ABRIR PAINEL EM JANELA PRÓPRIA
+  </button>
+
+  <button id="btnOpenOptions" class="btn-options">
+    ⚙️ PAINEL DE CONFIGURAÇÕES
+  </button>
+
+  <div class="footer">
+    Disparo direto no DOM com 0ms de atraso
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

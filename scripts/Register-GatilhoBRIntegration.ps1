@@ -50,6 +50,11 @@ if ($Uninstall) {
     Remove-Item -LiteralPath $hostTargetDir -Recurse -Force -ErrorAction SilentlyContinue
   }
 
+  $localExtDir = Join-Path $env:LOCALAPPDATA 'GatilhoBR\chrome-extension'
+  if (Test-Path -LiteralPath $localExtDir) {
+    Remove-Item -LiteralPath $localExtDir -Recurse -Force -ErrorAction SilentlyContinue
+  }
+
   Write-Host "[GatilhoBR] Desinstalação da integração concluída com sucesso." -ForegroundColor Green
   exit 0
 }
@@ -121,6 +126,22 @@ $manifestJson = $manifestObj | ConvertTo-Json -Depth 4
   if ($ExtensionCrxPath -and (Test-Path -LiteralPath $ExtensionCrxPath)) {
     Set-ItemProperty -Path $_ -Name 'path' -Value $ExtensionCrxPath -Force
   }
+}
+
+# 3. Provisionar pasta descompactada da extensão para Chrome/Edge
+$sourceExtCandidates = @(
+  (Join-Path $InstallRoot 'resources\chrome-extension'),
+  (Join-Path $InstallRoot 'chrome-extension'),
+  (Join-Path $projectRoot 'dist-extension'),
+  (Join-Path $projectRoot 'chrome-extension')
+)
+$sourceExt = $sourceExtCandidates | Where-Object { Test-Path -LiteralPath (Join-Path $_ 'manifest.json') } | Select-Object -First 1
+
+$extensionTargetDir = Join-Path $env:LOCALAPPDATA 'GatilhoBR\chrome-extension'
+if ($sourceExt) {
+  New-Item -ItemType Directory -Force -Path $extensionTargetDir | Out-Null
+  Copy-Item -LiteralPath "$sourceExt\*" -Destination $extensionTargetDir -Recurse -Force
+  Write-Host "  -> Extension Path: $extensionTargetDir" -ForegroundColor DarkGray
 }
 
 Write-Host "[GatilhoBR] Integração externa e Native Messaging registrados com sucesso:" -ForegroundColor Green
